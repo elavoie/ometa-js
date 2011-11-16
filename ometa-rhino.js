@@ -1,11 +1,3 @@
-load("lib.js")
-load("ometa-base.js")
-load("parser.js")
-load("bs-js-compiler.js")
-load("bs-ometa-compiler.js")
-load("bs-ometa-optimizer.js")
-load("bs-ometa-js-compiler.js")
-
 alert = print
 
 translateCode = function(s) {
