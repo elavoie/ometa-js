@@ -480,7 +480,16 @@ OMeta = {
         }
         return matchFailed(m, input.idx)
       }
-      throw f
+      
+      if (f.stack)
+      {
+          print(f.stack);
+      } else
+      {
+          print(f);
+      }
+
+      throw f;
     }
   },
   match: function(obj, rule, args, matchFailed) {
@@ -491,7 +500,7 @@ OMeta = {
   },
   createInstance: function() {
     var m = objectThatDelegatesTo(this)
-    m.initialize()
+    m.initialize.apply(m, arguments)
     m.matchAll = function(listyObj, aRule) {
       this.input = listyObj.toOMInputStream()
       return this._apply(aRule)
