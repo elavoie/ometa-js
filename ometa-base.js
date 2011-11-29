@@ -459,6 +459,10 @@ OMeta = {
                             })
   },
 
+  remNb: function () {
+    return this.input.lst.length - this.input.idx;
+  },
+
   initialize: function() { },
   // match and matchAll are a grammar's "public interface"
   _genericMatch: function(input, rule, args, matchFailed) {
@@ -478,7 +482,7 @@ OMeta = {
             input = input.tl
           input.idx--
         }
-        return matchFailed(m, input.idx)
+        return matchFailed(m, input.idx, f)
       }
       
       if (f.stack)
@@ -503,6 +507,10 @@ OMeta = {
     m.initialize.apply(m, arguments)
     m.matchAll = function(listyObj, aRule) {
       this.input = listyObj.toOMInputStream()
+      return this._apply(aRule)
+    }
+    m.match = function(obj, aRule) {
+      this.input = [obj].toOMInputStream()
       return this._apply(aRule)
     }
     return m
