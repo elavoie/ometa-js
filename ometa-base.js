@@ -37,7 +37,7 @@ M.matchAll("123456789", "number")
 
 // the failure exception
 
-fail = { toString: function() { return "match failed" } }
+var fail = { toString: function() { return "match failed" } }
 
 // streams and memoization
 
@@ -53,11 +53,11 @@ OMInputStream.prototype.tail = function() { return this.tl }
 OMInputStream.prototype.type = function() { return this.lst.constructor }
 OMInputStream.prototype.upTo = function(that) {
   var r = [], curr = this
-  while (curr != that) {
+  while (curr !== that) {
     r.push(curr.head())
     curr = curr.tail()
   }
-  return this.type() == String ? r.join('') : r
+  return this.type() === String ? r.join('') : r
 }
 
 function OMInputStreamEnd(lst, idx) {
@@ -81,7 +81,15 @@ function ListOMInputStream(lst, idx) {
 }
 ListOMInputStream.prototype = objectThatDelegatesTo(OMInputStream.prototype)
 ListOMInputStream.prototype.head = function() { return this.hd }
-ListOMInputStream.prototype.tail = function() { return this.tl || (this.tl = makeListOMInputStream(this.lst, this.idx + 1)) }
+ListOMInputStream.prototype.tail = function() 
+{ 
+    if (this.tl === undefined)
+    {
+        this.tl = makeListOMInputStream(this.lst, this.idx + 1);
+    }
+
+    return this.tl;
+}
 
 function makeListOMInputStream(lst, idx) { return new (idx < lst.length ? ListOMInputStream : OMInputStreamEnd)(lst, idx) }
 
@@ -107,27 +115,36 @@ Failer.prototype.used = false
 OMeta = {
   _apply: function(rule) {
     var memoRec = this.input.memo[rule]
-    if (memoRec == undefined) {
+
+    if (memoRec === undefined) {
       var origInput = this.input,
           failer    = new Failer()
+      
       if (this[rule] === undefined)
         throw 'tried to apply undefined rule "' + rule + '"'
+
       this.input.memo[rule] = failer
-      this.input.memo[rule] = memoRec = {ans: this[rule].call(this), nextInput: this.input}
+      this.input.memo[rule] = memoRec = {ans:this[rule].call(this), nextInput:this.input};
+
       if (failer.used) {
         var sentinel = this.input
         while (true) {
           try {
             this.input = origInput
             var ans = this[rule].call(this)
-            if (this.input == sentinel)
+
+            if (this.input === sentinel)
               throw fail
+
             memoRec.ans       = ans
             memoRec.nextInput = this.input
           }
           catch (f) {
-            if (f != fail)
+            if (f !== fail)
+            {
+              print("_apply("+rule+") failed with: " + f);
               throw f
+            }
             break
           }
         }
@@ -136,7 +153,8 @@ OMeta = {
     else if (memoRec instanceof Failer) {
       memoRec.used = true
       throw fail
-    }
+    } 
+
     this.input = memoRec.nextInput
     return memoRec.ans
   },
@@ -147,7 +165,7 @@ OMeta = {
     var ruleFnArity = ruleFn.length
     for (var idx = arguments.length - 1; idx >= ruleFnArity + 1; idx--) // prepend "extra" arguments in reverse order
       this._prependInput(arguments[idx])
-    return ruleFnArity == 0 ?
+    return ruleFnArity === 0 ?
              ruleFn.call(this) :
              ruleFn.apply(this, Array.prototype.slice.call(arguments, 1, ruleFnArity + 1))
   },
@@ -156,7 +174,7 @@ OMeta = {
     var ruleFnArity = ruleFn.length
     for (var idx = arguments.length - 1; idx > ruleFnArity + 2; idx--) // prepend "extra" arguments in reverse order
       recv._prependInput(arguments[idx])
-    return ruleFnArity == 0 ?
+    return ruleFnArity === 0 ?
              ruleFn.call(recv) :
              ruleFn.apply(recv, Array.prototype.slice.call(arguments, 2, ruleFnArity + 2))
   },
@@ -182,7 +200,7 @@ OMeta = {
       var ruleFnArity = this[rule].length
       for (var idx = arguments.length - 1; idx >= ruleFnArity + 1; idx--) // prepend "extra" arguments in reverse order
         this._prependInput(arguments[idx])
-      return ruleFnArity == 0 ?
+      return ruleFnArity === 0 ?
                this._apply(rule) :
                this[rule].apply(this, Array.prototype.slice.call(arguments, 1, ruleFnArity + 1))
     }
@@ -197,8 +215,11 @@ OMeta = {
     var origInput = this.input
     try { x.call(this) }
     catch (f) {
-      if (f != fail)
+      if (f !== fail)
+      {
+        print("_not failed with: " + f);
         throw f
+      }
       this.input = origInput
       return true
     }
@@ -215,8 +236,11 @@ OMeta = {
     for (var idx = 0; idx < arguments.length; idx++)
       try { this.input = origInput; return arguments[idx].call(this) }
       catch (f) {
-        if (f != fail)
+        if (f !== fail)
+        {
+          print("_or failed with: " + f);
           throw f
+        }
       }
     throw fail
   },
@@ -231,8 +255,11 @@ OMeta = {
         newInput = this.input
       }
       catch (f) {
-        if (f != fail)
+        if (f !== fail)
+        {
+          print("_xor failed with: " + f);
           throw f
+        }
       }
       idx++
     }
@@ -250,20 +277,26 @@ OMeta = {
     var origInput = this.input, ans
     try { ans = x.call(this) }
     catch (f) {
-      if (f != fail)
+      if (f !== fail)
+      {
+        print("_opt failed with: " + f);
         throw f
+      }
       this.input = origInput
     }
     return ans
   },
   _many: function(x) {
-    var ans = arguments[1] != undefined ? [arguments[1]] : []
+    var ans = arguments[1] !== undefined ? [arguments[1]] : []
     while (true) {
       var origInput = this.input
       try { ans.push(x.call(this)) }
       catch (f) {
-        if (f != fail)
+        if (f !== fail)
+        {
+          print("_many failed with: " + f);
           throw f
+        }
         this.input = origInput
         break
       }
@@ -295,11 +328,11 @@ OMeta = {
   _interleave: function(mode1, part1, mode2, part2 /* ..., moden, partn */) {
     var currInput = this.input, ans = []
     for (var idx = 0; idx < arguments.length; idx += 2)
-      ans[idx / 2] = (arguments[idx] == "*" || arguments[idx] == "+") ? [] : undefined
+      ans[idx / 2] = (arguments[idx] === "*" || arguments[idx] === "+") ? [] : undefined
     while (true) {
       var idx = 0, allDone = true
       while (idx < arguments.length) {
-        if (arguments[idx] != "0")
+        if (arguments[idx] !== "0")
           try {
             this.input = currInput
             switch (arguments[idx]) {
@@ -313,14 +346,17 @@ OMeta = {
             break
           }
           catch (f) {
-            if (f != fail)
+            if (f !== fail)
+            {
+              print("_interleaved failed with: " + f);
               throw f
+            }
             // if this (failed) part's mode is "1" or "+", we're not done yet
-            allDone = allDone && (arguments[idx] == "*" || arguments[idx] == "?")
+            allDone = allDone && (arguments[idx] === "*" || arguments[idx] === "?")
           }
         idx += 2
       }
-      if (idx == arguments.length) {
+      if (idx === arguments.length) {
         if (allDone)
           return ans
         else
@@ -386,7 +422,7 @@ OMeta = {
   },
   "char": function() {
     var r = this._apply("anything")
-    this._pred(typeof r === "string" && r.length == 1)
+    this._pred(typeof r === "string" && r.length === 1)
     return r
   },
   space: function() {
@@ -425,7 +461,9 @@ OMeta = {
   },
   seq: function(xs) {
     for (var idx = 0; idx < xs.length; idx++)
-      this._applyWithArgs("exactly", xs.at(idx))
+    {
+        this._applyWithArgs("exactly", xs.at(idx))
+    }
     return xs
   },
   notLast: function(rule) {
@@ -466,19 +504,19 @@ OMeta = {
   initialize: function() { },
   // match and matchAll are a grammar's "public interface"
   _genericMatch: function(input, rule, args, matchFailed) {
-    if (args == undefined)
+    if (args === undefined)
       args = []
     var realArgs = [rule]
     for (var idx = 0; idx < args.length; idx++)
       realArgs.push(args[idx])
     var m = objectThatDelegatesTo(this, {input: input})
     m.initialize()
-    try { return realArgs.length == 1 ? m._apply.call(m, realArgs[0]) : m._applyWithArgs.apply(m, realArgs) }
+    try { return realArgs.length === 1 ? m._apply.call(m, realArgs[0]) : m._applyWithArgs.apply(m, realArgs) }
     catch (f) {
-      if (f == fail && matchFailed != undefined) {
+      if (f === fail && matchFailed !== undefined) {
         var input = m.input
-        if (input.idx != undefined) {
-          while (input.tl != undefined && input.tl.idx != undefined)
+        if (input.idx !== undefined) {
+          while (input.tl !== undefined && input.tl.idx !== undefined)
             input = input.tl
           input.idx--
         }

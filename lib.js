@@ -14,7 +14,7 @@ String.prototype.writeStream      = function() { return new StringBuffer(this) }
 printOn = function(x, ws) {
   if (x === undefined || x === null)
     ws.nextPutAll("" + x)
-  else if (x.constructor === Array) {
+  else if (x instanceof Array) {
     ws.nextPutAll("[")
     for (var idx = 0; idx < x.length; idx++) {
       if (idx > 0)
@@ -57,7 +57,7 @@ isImmutable = function(x) {
 
 String.prototype.digitValue  = function() { return this.charCodeAt(0) - "0".charCodeAt(0) }
 
-isSequenceable = function(x) { return typeof x == "string" || x.constructor === Array }
+isSequenceable = function(x) { return typeof x === "string" || x instanceof Array }
 
 // some functional programming stuff
 
@@ -129,7 +129,7 @@ escapeChar = function(c) {
 }
 
 function unescape(s) {
-  if (s.charAt(0) == '\\')
+  if (s.charAt(0) === '\\')
     switch (s.charAt(1)) {
       case "'":  return "'"
       case '"':  return '"'
@@ -169,7 +169,7 @@ getTag = (function() {
     if (x === null || x === undefined)
       return x
     switch (typeof x) {
-      case "boolean": return x == true ? "Btrue" : "Bfalse"
+      case "boolean": return x === true ? "Btrue" : "Bfalse"
       case "string":  return "S" + x
       case "number":  return "N" + x
       default:        return x.hasOwnProperty("_id_") ? x._id_ : x._id_ = "R" + numIdx++
