@@ -109,6 +109,7 @@ String.prototype.pad = function(s, len) {
 escapeStringFor = new Object()
 for (var c = 0; c < 128; c++)
   escapeStringFor[c] = String.fromCharCode(c)
+escapeStringFor["\0".charCodeAt(0)]  = "\\0"
 escapeStringFor["'".charCodeAt(0)]  = "\\'"
 escapeStringFor['"'.charCodeAt(0)]  = '\\"'
 escapeStringFor["\\".charCodeAt(0)] = "\\\\"
@@ -131,6 +132,7 @@ escapeChar = function(c) {
 function unescape(s) {
   if (s.charAt(0) === '\\')
     switch (s.charAt(1)) {
+      case "0":  return "\0"
       case "'":  return "'"
       case '"':  return '"'
       case '\\': return '\\'
