@@ -70,7 +70,7 @@ OMInputStreamEnd.prototype.head = function() { throw fail }
 OMInputStreamEnd.prototype.tail = function() { throw fail }
 
 // This is necessary b/c in IE, you can't say "foo"[idx]
-Array.prototype.at  = function(idx) { return this[idx] }
+Object.defineProperty(Array.prototype, "at", { enumerable:false, value:function(idx) { return this[idx] }});
 String.prototype.at = String.prototype.charAt
 
 function ListOMInputStream(lst, idx) {
@@ -93,7 +93,7 @@ ListOMInputStream.prototype.tail = function()
 
 function makeListOMInputStream(lst, idx) { return new (idx < lst.length ? ListOMInputStream : OMInputStreamEnd)(lst, idx) }
 
-Array.prototype.toOMInputStream  = function() { return makeListOMInputStream(this, 0) }
+Object.defineProperty(Array.prototype, "toOMInputStream", { enumerable:false, value:function() { return makeListOMInputStream(this, 0) }});
 String.prototype.toOMInputStream = function() { return makeListOMInputStream(this, 0) }
 
 function makeOMInputStreamProxy(target) {

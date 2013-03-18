@@ -70,14 +70,14 @@ Array.prototype.map = function(f) {
 }
 */
 
-Array.prototype.reduce = function(f, z) {
+Object.defineProperty(Array.prototype, "reduce", { enumerable:false, value:function(f, z) {
   var r = z
   for (var idx = 0; idx < this.length; idx++)
     r = f(r, this[idx])
   return r
-}
+}});
 
-Array.prototype.delimWith = function(d) {
+Object.defineProperty(Array.prototype, "delimWith", { enumerable:false, value:function(d) {
   return this.reduce(
     function(xs, x) {
       if (xs.length > 0)
@@ -85,8 +85,8 @@ Array.prototype.delimWith = function(d) {
       xs.push(x)
       return xs
     },
-   [])
-}
+   []);
+}});
 
 // Squeak's ReadStream, kind of
 
