@@ -1,0 +1,12 @@
+{
+    "name":    "OMetaNodeJS",
+    "version": "0.1.0",
+    "author" : "Erick Lavoie",
+    "description" : "OMeta packaged for NodeJS, with a command line compiler. The original version of node was created by Alessandro Warth (https://github.com/alexwarth/ometa-js).",
+    "private": true,
+    "bin" : {
+        "ometac" : "./bin/ometac"
+    },
+    "license" : "MIT"
+}
+
