@@ -1,4 +1,4 @@
-This is a packaged version of OMeta-JS for NodeJS. The original version has been done by Alessandro Warth, https://github.com/alexwarth/ometa-js. This version kept only the core files needed to compile an OMeta Grammar to its JavaScript equivalent. It provides an executable, ometac, to compile OMeta Grammar files from the commandline.
+This is a packaged version of OMeta-JS for NodeJS. The original version has been done by Alessandro Warth, https://github.com/alexwarth/ometa-js. This version keeps only the core files needed to compile an OMeta Grammar to its JavaScript equivalent. It provides an executable, ometac, to compile OMeta Grammar files from the commandline.
 
 No support for using the code as a library has been done yet.
 
